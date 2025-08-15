@@ -1,1 +1,9 @@
+
+#ignore project structure
+project_structure.ipynb
+
+#ignore virtual environment
 student/
+
+#ignore vs code settings
+.vscode/
