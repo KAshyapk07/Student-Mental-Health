@@ -15,7 +15,9 @@ def custom_cleaning(df: pd.DataFrame) -> pd.DataFrame:
         df = df.drop(columns=["Country"])
 
     def _norm(x):  
-        return str(x).strip().lower().replace(" ", "").replace("-","")
+        if pd.isna(x):
+            return None
+        return str(x).strip().lower().replace(" ", "").replace("-", "").replace("_", "")
 
     def _map_col(series, mapping):
 
