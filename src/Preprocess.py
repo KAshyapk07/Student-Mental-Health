@@ -8,23 +8,56 @@ from sklearn.impute import SimpleImputer
 def load_data(path: str) -> pd.DataFrame:
     return pd.read_csv(path)
 
-
 def custom_cleaning(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+
     if "Country" in df.columns:
         df = df.drop(columns=["Country"])
 
-    binary_cols = ["Consultation_History", "Smoking_Habit",
-                   "Alcohol_Consumption", "Medication_Usage"]
-    for col in binary_cols:
-        if col in df.columns:
-            df[col] = df[col].map({"Yes": 1, "No": 0})
+    def _norm(x):  
+        return str(x).strip().lower().replace(" ", "").replace("-","")
 
-    if "Occupation" in df.columns:
-        top_occ = df["Occupation"].value_counts().nlargest(10).index
-        df["Occupation"] = df["Occupation"].apply(lambda x: x if x in top_occ else "Other")
+    def _map_col(series, mapping):
+
+        norm_map = {k.lower(): v for k, v in mapping.items()}
+        return series.map(lambda x: norm_map.get(_norm(x), pd.NA))
+
+
+    yes_no_map = {"Yes": 1, "No": 0}
+    for col in ["Consultation_History", "Medication_Usage"]:
+        if col in df.columns:
+            df[col] = _map_col(df[col], yes_no_map)
+
+
+    if "Smoking_Habit" in df.columns:
+        smoking_map = {
+            "nonsmoker": 0,
+            "occasionalsmoker": 1,
+            "regularsmoker": 2,
+            "heavysmoker": 3,
+        }
+        df["Smoking_Habit"] = _map_col(df["Smoking_Habit"], smoking_map)
+
+
+    if "Alcohol_Consumption" in df.columns:
+        alcohol_map = {
+            "nondrinker": 0,
+            "socialdrinker": 1,
+            "regulardrinker": 2,
+            "heavydrinker": 3,
+        }
+        df["Alcohol_Consumption"] = _map_col(df["Alcohol_Consumption"], alcohol_map)
+
+    if "Diet_Quality" in df.columns:
+        diet_map = {"Unhealthy": 0, "Average": 1, "Healthy": 2}
+        df["Diet_Quality"] = _map_col(df["Diet_Quality"], diet_map)
+
+    for c in ["Consultation_History","Medication_Usage",
+              "Smoking_Habit","Alcohol_Consumption","Diet_Quality"]:
+        if c in df.columns:
+            df[c] = df[c].astype("Int64")
 
     return df
-
 
 def get_preprocessor(df: pd.DataFrame):
     categorical_cols = []
