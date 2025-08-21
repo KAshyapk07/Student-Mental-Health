@@ -53,6 +53,10 @@ def custom_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     if "Diet_Quality" in df.columns:
         diet_map = {"Unhealthy": 0, "Average": 1, "Healthy": 2}
         df["Diet_Quality"] = _map_col(df["Diet_Quality"], diet_map)
+    
+    if "Stress_Level" in df.columns:
+        stress_map = {"low": 0, "medium": 1, "high": 2}
+        df["Stress_Level"] = _map_col(df["Stress_Level"], stress_map)
 
     for c in ["Consultation_History","Medication_Usage",
               "Smoking_Habit","Alcohol_Consumption","Diet_Quality"]:
@@ -63,7 +67,12 @@ def custom_cleaning(df: pd.DataFrame) -> pd.DataFrame:
 
 def get_preprocessor(df: pd.DataFrame):
     categorical_cols = []
-    numeric_cols = []
+    numeric_cols = [
+        "Age", "Stress_Level", "Sleep_Hours", "Work_Hours",
+        "Physical_Activity_Hours", "Social_Media_Usage",
+        "Consultation_History", "Medication_Usage",
+        "Smoking_Habit", "Alcohol_Consumption", "Diet_Quality"
+    ]
 
     if "Gender" in df.columns:
         categorical_cols.append("Gender")
@@ -71,9 +80,6 @@ def get_preprocessor(df: pd.DataFrame):
         categorical_cols.append("Diet_Quality")
     if "Occupation" in df.columns:
         categorical_cols.append("Occupation")
-
-    numeric_cols = ["Age", "Stress_Level", "Sleep_Hours", "Work_Hours",
-                    "Physical_Activity_Hours", "Social_Media_Usage"]
 
     cat_pipeline = Pipeline(steps=[
         ("imputer", SimpleImputer(strategy="most_frequent")),
