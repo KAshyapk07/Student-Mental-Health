@@ -101,13 +101,27 @@ def get_preprocessor(df: pd.DataFrame):
 
     return preprocessor
 
+STAGE1_FEATURES = [
+    "Age", "Gender", "Occupation", "Stress_Level", "Sleep_Hours", "Work_Hours",
+    "Physical_Activity_Hours", "Social_Media_Usage",
+    "Consultation_History", "Medication_Usage",
+    "Smoking_Habit", "Alcohol_Consumption", "Diet_Quality"
+]
+
+STAGE2_FEATURES = [
+    "Age", "Gender", "Occupation", "Stress_Level", "Sleep_Hours", "Work_Hours",
+    "Physical_Activity_Hours", "Social_Media_Usage",
+    "Consultation_History", "Medication_Usage",
+    "Smoking_Habit", "Alcohol_Consumption", "Diet_Quality"
+]
 
 def create_stage_datasets(df: pd.DataFrame):
-    stage1 = df.drop(columns=["Severity"])
+    stage1 = df[STAGE1_FEATURES + ["Mental_Health_Condition"]].copy()
     stage1_target = stage1.pop("Mental_Health_Condition").map({"Yes": 1, "No": 0})
     stage1["target"] = stage1_target
 
     stage2 = df.dropna(subset=["Severity"]).copy()
+    stage2 = stage2[STAGE2_FEATURES + ["Severity"]]
     stage2_target = stage2.pop("Severity").map({"Mild": 0, "Moderate": 1, "Severe": 2})
     stage2["target"] = stage2_target
 
